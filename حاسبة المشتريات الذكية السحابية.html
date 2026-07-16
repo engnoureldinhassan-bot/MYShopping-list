@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<!-- saved from url=(0067)file:///C:/Users/notarek/Downloads/New%20folder%20(3)/Shopping.html -->
+<html lang="ar" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>حاسبة المشتريات الذكية السحابية</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #34495e;
+            --success: #2ecc71;
+            --success-dark: #27ae60;
+            --danger: #e74c3c;
+            --danger-dark: #c0392b;
+            --bg: #f5f7fb;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 15px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 10px auto;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* لوحة التحكم بالمزامنة */
+        .sync-panel {
+            border: 1.5px dashed var(--border);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .sync-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: var(--success);
+            color: white;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+
+        .sync-status {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .error-log {
+            background: #fff5f5;
+            color: var(--danger-dark);
+            border: 1px solid #fed7d7;
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 8px;
+            font-family: monospace;
+            font-size: 11px;
+            display: none;
+            text-align: left;
+            direction: ltr;
+        }
+
+        /* التبويبات */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            color: var(--primary-light);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #fff;
+            -webkit-appearance: none;
+        }
+
+        .input-control:focus {
+            border-color: var(--primary);
+        }
+
+        #itemName { flex: 2; }
+        #itemQty { flex: 0.8; text-align: center; }
+        #itemPrice { flex: 1.2; }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: white;
+            min-height: 44px;
+        }
+
+        .add-btn { background-color: var(--success); width: 100%; }
+        .add-btn:hover { background-color: var(--success-dark); }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .pdf-btn { background-color: #3498db; }
+        .pdf-btn:hover { background-color: #2980b9; }
+        .clear-btn { background-color: var(--danger); }
+        .clear-btn:hover { background-color: var(--danger-dark); }
+        
+        .archive-btn {
+            grid-column: span 2;
+            background-color: #f39c12;
+        }
+        .archive-btn:hover { background-color: #d35400; }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            text-align: right;
+            font-size: 14px;
+        }
+
+        th { background-color: #f8fafc; color: var(--primary); font-weight: 700; }
+        
+        .table-input {
+            width: 65px;
+            padding: 6px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+            background: transparent;
+            transition: all 0.2s;
+            color: inherit;
+        }
+
+        .table-input:hover, .table-input:focus {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        .price-input { width: 80px; text-align: right; }
+
+        .bought {
+            text-decoration: line-through;
+            color: #94a3b8;
+            background-color: #f0fdf4;
+        }
+
+        .bought .table-input {
+            color: #94a3b8;
+            text-decoration: line-through;
+            pointer-events: none;
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            min-height: 35px;
+        }
+        .delete-btn:hover { background: var(--danger-dark); }
+
+        .checkbox-cell { width: 45px; text-align: center; }
+        .checkbox-cell input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--success);
+        }
+
+        .total-section {
+            margin-top: 25px;
+            padding: 18px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(44, 62, 80, 0.15);
+        }
+
+        .total-amount {
+            color: var(--success);
+            font-size: 1.4rem;
+            margin-right: 5px;
+        }
+
+        /* تصميم قسم سجل الأيام */
+        .history-day {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .history-header {
+            background: #f8fafc;
+            padding: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .history-header:hover {
+            background: #f1f5f9;
+        }
+
+        .history-details {
+            padding: 15px;
+            border-top: 1px solid var(--border);
+            background: #fff;
+        }
+
+        @media print {
+            body { background: white; padding: 0; color: #000; }
+            .container { box-shadow: none; margin: 0; width: 100%; max-width: 100%; padding: 0; }
+            .input-card, .action-buttons, .delete-btn, th:last-child, td:last-child, .sync-panel, .tabs { display: none !important; }
+            .table-container { border: none; }
+            table { width: 100%; border: 1px solid #ccc; margin-bottom: 20px; }
+            th, td { border-bottom: 1px solid #ccc; padding: 8px; }
+            .table-input { border: none !important; background: transparent !important; text-align: right !important; padding: 0 !important; pointer-events: none; }
+            .total-section { background: #f1f5f9 !important; color: #000 !important; border: 1px solid #ccc; box-shadow: none; }
+            .total-amount { color: #000 !important; font-weight: bold; }
+            .history-details { display: block !important; }
+            .history-header { background: #e2e8f0 !important; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 8px; }
+            .container { padding: 15px 10px; border-radius: 12px; }
+            h2 { font-size: 1.3rem; }
+            .input-row { flex-direction: column; gap: 8px; }
+            #itemQty, #itemPrice { width: 100%; }
+            th, td { padding: 8px 4px; font-size: 12px; }
+            .table-input { width: 45px; padding: 4px; }
+            .price-input { width: 60px; }
+            .delete-btn { padding: 6px 8px; font-size: 11px; min-height: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🛒 حاسبة المشتريات الذكية</h2>
+    
+    <!-- لوحة المزامنة السحابية -->
+    <div class="sync-panel" id="syncPanel" style="background: rgb(248, 250, 252); border-color: var(--border);">
+                <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+                    <p style="font-weight: 500;">🌐 مشاركة القائمة والوصول إليها من موبايل آخر أو لابتوب:</p>
+                    <div style="display: flex; gap: 10px; width: 100%; max-width: 450px; justify-content: center; flex-wrap: wrap; align-items: center;">
+                        <button class="btn" style="background: var(--primary); padding: 8px 12px; min-height:35px; font-size:13px;" onclick="createCloudBin()">إنشاء رمز مزامنة جديد ☁️</button>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="text" id="linkCodeInput" class="input-control" style="width: 120px; padding: 6px; font-size:13px;" placeholder="اكتب رمز جهاز آخر">
+                            <button class="btn" style="background: #3498db; padding: 8px 12px; min-height:35px; font-size:13px;" onclick="linkDevice()">ربط 🔗</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="syncStatus" class="sync-status">تعمل حالياً محلياً على هذا الجهاز فقط</div>
+                <div id="errorLog" class="error-log"></div>
+            </div>
+
+    <!-- التبويبات -->
+    <div class="tabs">
+        <button class="tab-btn active" id="tabListBtn" onclick="switchTab(&#39;list&#39;)">🛒 قائمة التسوق</button>
+        <button class="tab-btn" id="tabHistoryBtn" onclick="switchTab(&#39;history&#39;)">📅 سجل المصاريف اليومية</button>
+    </div>
+
+    <!-- المحتوى الأول: قائمة التسوق -->
+    <div id="tabListContent" class="tab-content active">
+        <!-- كرت إدخال البيانات -->
+        <div class="input-card">
+            <div class="input-group">
+                <input type="text" id="itemName" class="input-control" placeholder="اسم المنتج (مثلاً: رز)">
+                <div class="input-row">
+                    <input type="number" id="itemQty" class="input-control" placeholder="الكمية" min="1" value="1">
+                    <input type="number" id="itemPrice" class="input-control" placeholder="السعر" min="0" step="0.5">
+                </div>
+                <button class="btn add-btn" onclick="addItem()">إضافة للقائمة ➕</button>
+            </div>
+        </div>
+
+        <!-- أزرار التحكم -->
+        <div class="action-buttons">
+            <button class="btn pdf-btn" onclick="exportPDF()">تصدير كـ PDF 📄</button>
+            <button class="btn clear-btn" onclick="clearAll()">مسح القائمة 🗑️</button>
+            <button class="btn archive-btn" onclick="archiveBoughtItems()">رحّل المشتريات للسجل ونظّف القائمة 🧹</button>
+        </div>
+
+        <!-- جدول عرض المشتريات -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="checkbox-cell">تم؟</th>
+                        <th>المنتج</th>
+                        <th>الكمية</th>
+                        <th>السعر</th>
+                        <th>الإجمالي</th>
+                        <th>حذف</th>
+                    </tr>
+                </thead>
+                <tbody id="listBody"><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784188897275)">
+                </td>
+                <td style="font-weight: 500;">مكرونة شرايط</td>
+                <td>
+                    <input type="number" class="table-input" value="3" min="1" onchange="updateQty(1784188897275, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="26" min="0" step="0.5" onchange="updatePrice(1784188897275, this.value)">
+                </td>
+                <td style="font-weight: 600;">78.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784188897275)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784188930290)">
+                </td>
+                <td style="font-weight: 500;">مكرونة فيوزلي</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784188930290, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="28" min="0" step="0.5" onchange="updatePrice(1784188930290, this.value)">
+                </td>
+                <td style="font-weight: 600;">28.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784188930290)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784188947095)">
+                </td>
+                <td style="font-weight: 500;">مكرونة زيتي</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784188947095, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="28" min="0" step="0.5" onchange="updatePrice(1784188947095, this.value)">
+                </td>
+                <td style="font-weight: 600;">28.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784188947095)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784188963912)">
+                </td>
+                <td style="font-weight: 500;">مكرونة لسان عصفور</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784188963912, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="28" min="0" step="0.5" onchange="updatePrice(1784188963912, this.value)">
+                </td>
+                <td style="font-weight: 600;">28.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784188963912)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784189184175)">
+                </td>
+                <td style="font-weight: 500;">مكرونة كانيلوني</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784189184175, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="45" min="0" step="0.5" onchange="updatePrice(1784189184175, this.value)">
+                </td>
+                <td style="font-weight: 600;">45.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784189184175)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784189193215)">
+                </td>
+                <td style="font-weight: 500;">مكرونة لازانيا</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784189193215, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="45" min="0" step="0.5" onchange="updatePrice(1784189193215, this.value)">
+                </td>
+                <td style="font-weight: 600;">45.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784189193215)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784189200419)">
+                </td>
+                <td style="font-weight: 500;">نودلز</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784189200419, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="33" min="0" step="0.5" onchange="updatePrice(1784189200419, this.value)">
+                </td>
+                <td style="font-weight: 600;">33.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784189200419)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784189213631)">
+                </td>
+                <td style="font-weight: 500;">لبن المراعي</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784189213631, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="33" min="0" step="0.5" onchange="updatePrice(1784189213631, this.value)">
+                </td>
+                <td style="font-weight: 600;">33.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784189213631)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784189237728)">
+                </td>
+                <td style="font-weight: 500;">لبن لمار</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784189237728, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="33" min="0" step="0.5" onchange="updatePrice(1784189237728, this.value)">
+                </td>
+                <td style="font-weight: 600;">33.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784189237728)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784189242896)">
+                </td>
+                <td style="font-weight: 500;">تودو</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784189242896, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="9" min="0" step="0.5" onchange="updatePrice(1784189242896, this.value)">
+                </td>
+                <td style="font-weight: 600;">9.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784189242896)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784189261839)">
+                </td>
+                <td style="font-weight: 500;">لحمة شاورما</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784189261839, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="137" min="0" step="0.5" onchange="updatePrice(1784189261839, this.value)">
+                </td>
+                <td style="font-weight: 600;">137.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784189261839)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784189272251)">
+                </td>
+                <td style="font-weight: 500;">لحمة مفرومة (كفتة وحواوشي)</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784189272251, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="137" min="0" step="0.5" onchange="updatePrice(1784189272251, this.value)">
+                </td>
+                <td style="font-weight: 600;">137.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784189272251)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784189287376)">
+                </td>
+                <td style="font-weight: 500;">جبنة دومتي 450 ج</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784189287376, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="77" min="0" step="0.5" onchange="updatePrice(1784189287376, this.value)">
+                </td>
+                <td style="font-weight: 600;">77.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784189287376)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784189302922)">
+                </td>
+                <td style="font-weight: 500;">جبنة 700 ج</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784189302922, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="120" min="0" step="0.5" onchange="updatePrice(1784189302922, this.value)">
+                </td>
+                <td style="font-weight: 600;">120.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784189302922)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(1784189914606)">
+                </td>
+                <td style="font-weight: 500;">هوت دوج</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(1784189914606, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="96" min="0" step="0.5" onchange="updatePrice(1784189914606, this.value)">
+                </td>
+                <td style="font-weight: 600;">96.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(1784189914606)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2001)">
+                </td>
+                <td style="font-weight: 500;">ورق عنب (نصف كيلو)</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2001, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="60" min="0" step="0.5" onchange="updatePrice(2001, this.value)">
+                </td>
+                <td style="font-weight: 600;">60.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2001)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2002)">
+                </td>
+                <td style="font-weight: 500;">لحمة قطع للمحشي (موزة/ريش)</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2002, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="390" min="0" step="0.5" onchange="updatePrice(2002, this.value)">
+                </td>
+                <td style="font-weight: 600;">390.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2002)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2003)">
+                </td>
+                <td style="font-weight: 500;">أرز مصري (كيلو)</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2003, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="35" min="0" step="0.5" onchange="updatePrice(2003, this.value)">
+                </td>
+                <td style="font-weight: 600;">35.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2003)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2004)">
+                </td>
+                <td style="font-weight: 500;">خضرة محشي مشكلة</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2004, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="15" min="0" step="0.5" onchange="updatePrice(2004, this.value)">
+                </td>
+                <td style="font-weight: 600;">15.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2004)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2005)">
+                </td>
+                <td style="font-weight: 500;">ططماطم وبصل للتسبيك</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2005, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="50" min="0" step="0.5" onchange="updatePrice(2005, this.value)">
+                </td>
+                <td style="font-weight: 600;">50.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2005)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2006)">
+                </td>
+                <td style="font-weight: 500;">دبس رمان وليمون</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2006, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="40" min="0" step="0.5" onchange="updatePrice(2006, this.value)">
+                </td>
+                <td style="font-weight: 600;">40.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2006)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2007)">
+                </td>
+                <td style="font-weight: 500;">فرخة كاملة للبروست (وزن صغير)</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2007, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="200" min="0" step="0.5" onchange="updatePrice(2007, this.value)">
+                </td>
+                <td style="font-weight: 600;">200.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2007)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2008)">
+                </td>
+                <td style="font-weight: 500;">خلطة البروست من كنور</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2008, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="41" min="0" step="0.5" onchange="updatePrice(2008, this.value)">
+                </td>
+                <td style="font-weight: 600;">41.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2008)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2010)">
+                </td>
+                <td style="font-weight: 500;">صدور دجاج مخلية (بانيه كيلو)</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2010, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="210" min="0" step="0.5" onchange="updatePrice(2010, this.value)">
+                </td>
+                <td style="font-weight: 600;">210.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2010)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2011)">
+                </td>
+                <td style="font-weight: 500;">لحمة شرائح رفيعة (نصف كيلو فليتو)</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2011, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="220" min="0" step="0.5" onchange="updatePrice(2011, this.value)">
+                </td>
+                <td style="font-weight: 600;">220.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2011)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2012)">
+                </td>
+                <td style="font-weight: 500;">مشروم (طبق فريش/علبة)</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2012, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="45" min="0" step="0.5" onchange="updatePrice(2012, this.value)">
+                </td>
+                <td style="font-weight: 600;">45.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2012)">حذف</button>
+                </td>
+            </tr><tr>
+                <td class="checkbox-cell">
+                    <input type="checkbox" onchange="toggleBought(2013)">
+                </td>
+                <td style="font-weight: 500;">كريمة طهي للستروجانوف</td>
+                <td>
+                    <input type="number" class="table-input" value="1" min="1" onchange="updateQty(2013, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="50" min="0" step="0.5" onchange="updatePrice(2013, this.value)">
+                </td>
+                <td style="font-weight: 600;">50.00</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(2013)">حذف</button>
+                </td>
+            </tr></tbody>
+            </table>
+        </div>
+
+        <!-- إجمالي الفلوس المصروفة للمشتريات الحالية المعلمة بـ صح -->
+        <div class="total-section">
+            💰 الفلوس اللي اتصرفت حالياً: <span id="totalSpent" class="total-amount">0.00</span> جنيه
+        </div>
+    </div>
+
+    <!-- المحتوى الثاني: سجل المصاريف اليومية -->
+    <div id="tabHistoryContent" class="tab-content">
+        <div class="action-buttons" style="grid-template-columns: 1fr 1fr;">
+            <button class="btn pdf-btn" onclick="exportPDF()">طباعة السجل PDF 📄</button>
+            <button class="btn clear-btn" onclick="clearHistory()">مسح السجل بالكامل 🗑️</button>
+        </div>
+        
+        <div id="historyContainer"><p style="text-align:center; color:#94a3b8; padding: 20px;">سجل المصاريف فارغ حالياً. قم بترحيل مشترياتك ليظهر هنا بالأيام!</p></div>
+    </div>
+
+</div>
+
+<script>
+    const defaultList = [
+        { id: 1784188897275, name: "مكرونة شرايط", qty: 3, price: 28.00, isBought: false },
+        { id: 1784188930290, name: "مكرونة فيوزلي", qty: 1, price: 28.00, isBought: false },
+        { id: 1784189261839, name: "لحمة شاورما", qty: 1, price: 137.00, isBought: false },
+        { id: 1784189272251, name: "لحمة مفرومة (كفتة وحواوشي)", qty: 1, price: 137.00, isBought: false },
+        { id: 2001, name: "ورق عنب (نصف كيلو)", qty: 1, price: 60.00, isBought: false },
+        { id: 2002, name: "لحمة قطع للمحشي (موزة/ريش)", qty: 1, price: 390.00, isBought: false },
+        { id: 2007, name: "فرخة كاملة للبروست (وزن صغير)", qty: 1, price: 140.00, isBought: false },
+        { id: 2010, name: "صدور دجاج مخلية (بانيه كيلو)", qty: 1, price: 210.00, isBought: false },
+        { id: 2011, name: "لحمة شرائح رفيعة (نصف كيلو فليتو)", qty: 1, price: 220.00, isBought: false }
+    ];
+
+    const defaultHistory = [
+        { date: "2026-07-15", name: "لبن المراعي", qty: 2, price: 33.00, total: 66.00 },
+        { date: "2026-07-15", name: "جبنة دومتي 450 ج", qty: 1, price: 77.00, total: 77.00 },
+        { date: "2026-07-14", name: "نودلز", qty: 3, price: 33.00, total: 99.00 }
+    ];
+
+    let shoppingList = JSON.parse(localStorage.getItem('shoppingList_v2')) || defaultList;
+    let historyLog = JSON.parse(localStorage.getItem('historyLog')) || defaultHistory;
+    let syncCode = localStorage.getItem('syncCode') || "";
+
+    function saveAndRender() {
+        localStorage.setItem('shoppingList_v2', JSON.stringify(shoppingList));
+        localStorage.setItem('historyLog', JSON.stringify(historyLog));
+        renderList();
+        renderHistory();
+        uploadToCloud();
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        if (tab === 'list') {
+            document.getElementById('tabListBtn').classList.add('active');
+            document.getElementById('tabListContent').classList.add('active');
+        } else {
+            document.getElementById('tabHistoryBtn').classList.add('active');
+            document.getElementById('tabHistoryContent').classList.add('active');
+            renderHistory();
+        }
+    }
+
+    function addItem() {
+        const nameInput = document.getElementById('itemName');
+        const qtyInput = document.getElementById('itemQty');
+        const priceInput = document.getElementById('itemPrice');
+
+        const name = nameInput.value.trim();
+        const qty = parseInt(qtyInput.value) || 1;
+        const price = parseFloat(priceInput.value) || 0;
+
+        if (name === "") {
+            alert("من فضلك اكتب اسم المنتج أولاً!");
+            return;
+        }
+
+        const item = {
+            id: Date.now(),
+            name: name,
+            qty: qty,
+            price: price,
+            isBought: false
+        };
+
+        shoppingList.push(item);
+        saveAndRender();
+
+        nameInput.value = "";
+        qtyInput.value = "1";
+        priceInput.value = "";
+        nameInput.focus();
+    }
+
+    function toggleBought(id) {
+        const item = shoppingList.find(i => i.id === id);
+        if (item) {
+            item.isBought = !item.isBought;
+            saveAndRender();
+        }
+    }
+
+    function deleteItem(id) {
+        shoppingList = shoppingList.filter(i => i.id !== id);
+        saveAndRender();
+    }
+
+    function updateQty(id, val) {
+        const item = shoppingList.find(i => i.id === id);
+        if (item) {
+            item.qty = parseInt(val) || 1;
+            saveAndRender();
+        }
+    }
+
+    function updatePrice(id, val) {
+        const item = shoppingList.find(i => i.id === id);
+        if (item) {
+            item.price = parseFloat(val) || 0;
+            saveAndRender();
+        }
+    }
+
+    function calculateGrandTotal() {
+        let totalSpent = 0;
+        shoppingList.forEach(item => {
+            if (item.isBought) {
+                totalSpent += item.qty * item.price;
+            }
+        });
+        document.getElementById('totalSpent').innerText = totalSpent.toFixed(2);
+    }
+
+    function renderList() {
+        const tbody = document.getElementById('listBody');
+        tbody.innerHTML = "";
+
+        shoppingList.forEach(item => {
+            const itemTotal = item.qty * item.price;
+            const row = document.createElement('tr');
+            if (item.isBought) {
+                row.classList.add('bought');
+            }
+
+            row.innerHTML = `
+                <td class="checkbox-cell">
+                    <input type="checkbox" ${item.isBought ? 'checked' : ''} onchange="toggleBought(${item.id})">
+                </td>
+                <td style="font-weight: 500;">${item.name}</td>
+                <td>
+                    <input type="number" class="table-input" value="${item.qty}" min="1" onchange="updateQty(${item.id}, this.value)">
+                </td>
+                <td>
+                    <input type="number" class="table-input price-input" value="${item.price}" min="0" step="0.5" onchange="updatePrice(${item.id}, this.value)">
+                </td>
+                <td style="font-weight: 600;">${itemTotal.toFixed(2)}</td>
+                <td>
+                    <button class="delete-btn" onclick="deleteItem(${item.id})">حذف</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        calculateGrandTotal();
+    }
+
+    function archiveBoughtItems() {
+        const boughtItems = shoppingList.filter(item => item.isBought);
+        if (boughtItems.length === 0) {
+            alert("لا توجد منتجات معلمة بـ (صح) لترحيلها!");
+            return;
+        }
+
+        if (confirm(`هل تريد ترحيل ${boughtItems.length} منتج إلى المصاريف اليومية وتفريغ قائمة التسوق منها؟`)) {
+            const d = new Date();
+            const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+            boughtItems.forEach(item => {
+                historyLog.push({
+                    date: todayStr,
+                    name: item.name,
+                    qty: item.qty,
+                    price: item.price,
+                    total: item.qty * item.price
+                });
+            });
+
+            shoppingList = shoppingList.filter(item => !item.isBought);
+
+            saveAndRender();
+            alert("تم ترحيل المشتريات وحفظها في السجل لليوم بنجاح! 💾");
+        }
+    }
+
+    function renderHistory() {
+        const container = document.getElementById('historyContainer');
+        container.innerHTML = "";
+
+        if (historyLog.length === 0) {
+            container.innerHTML = "<p style='text-align:center; color:#94a3b8; padding: 20px;'>سجل المصاريف فارغ حالياً. قم بترحيل مشترياتك ليظهر هنا بالأيام!</p>";
+            return;
+        }
+
+        const grouped = {};
+        historyLog.forEach(item => {
+            if (!grouped[item.date]) {
+                grouped[item.date] = [];
+            }
+            grouped[item.date].push(item);
+        });
+
+        const sortedDates = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
+
+        sortedDates.forEach(date => {
+            const items = grouped[date];
+            const dayTotal = items.reduce((sum, i) => sum + i.total, 0);
+
+            const dayCard = document.createElement('div');
+            dayCard.className = 'history-day';
+            dayCard.innerHTML = `
+                <div class="history-header" onclick="toggleDayDetails('${date}')">
+                    <span>📅 يوم: ${date}</span>
+                    <span style="font-weight: bold; color: var(--success-dark);">${dayTotal.toFixed(2)} جنيه 👈</span>
+                </div>
+                <div id="details-${date}" class="history-details" style="display: none;">
+                    <table style="min-width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>البند</th>
+                                <th style="text-align:center;">الكمية</th>
+                                <th>السعر</th>
+                                <th>الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(i => `
+                                <tr>
+                                    <td>${i.name}</td>
+                                    <td style="text-align: center;">${i.qty}</td>
+                                    <td>${i.price.toFixed(2)}</td>
+                                    <td style="font-weight: bold;">${i.total.toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            container.appendChild(dayCard);
+        });
+    }
+
+    function toggleDayDetails(date) {
+        const el = document.getElementById(`details-${date}`);
+        if (el.style.display === "none") {
+            el.style.display = "block";
+        } else {
+            el.style.display = "none";
+        }
+    }
+
+    function clearAll() {
+        if (confirm("هل تريد مسح جميع المنتجات في قائمة التسوق الحالية؟")) {
+            shoppingList = [];
+            saveAndRender();
+        }
+    }
+
+    function clearHistory() {
+        if (confirm("هل تريد مسح سجل المصاريف اليومية بالكامل بشكل نهائي؟")) {
+            historyLog = [];
+            saveAndRender();
+        }
+    }
+
+    function exportPDF() {
+        window.print();
+    }
+
+    /* -------------------------------------------
+       منظومة المزامنة السحابية الذكية بعد تعديل الروابط
+       ------------------------------------------- */
+    
+    function renderSyncUI() {
+        const panel = document.getElementById('syncPanel');
+        if (syncCode) {
+            panel.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <span class="sync-badge">متصل سحابياً 🟢</span>
+                        <span>رمز المزامنة: <strong style="color: var(--primary); font-size: 15px; user-select:all;">${syncCode}</strong></span>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn" style="background:#3498db; padding: 6px 10px; min-height:32px; font-size:12px;" onclick="copySyncCode()">نسخ الرمز 📋</button>
+                        <button class="btn" style="background:#2ecc71; padding: 6px 10px; min-height:32px; font-size:12px;" onclick="downloadFromCloud()">مزامنة وتحديث 🔄</button>
+                        <button class="btn" style="background:var(--danger); padding: 6px 10px; min-height:32px; font-size:12px;" onclick="disconnectSync()">فصل 🔌</button>
+                    </div>
+                </div>
+                <div id="syncStatus" class="sync-status">تلقائي: يتم حفظ ومزامنة التعديلات فورياً</div>
+                <div id="errorLog" class="error-log"></div>
+            `;
+            panel.style.background = "#f0fdf4";
+            panel.style.borderColor = "var(--success)";
+        } else {
+            panel.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+                    <p style="font-weight: 500;">🌐 مشاركة القائمة والوصول إليها من موبايل آخر أو لابتوب:</p>
+                    <div style="display: flex; gap: 10px; width: 100%; max-width: 450px; justify-content: center; flex-wrap: wrap; align-items: center;">
+                        <button class="btn" style="background: var(--primary); padding: 8px 12px; min-height:35px; font-size:13px;" onclick="createCloudBin()">إنشاء رمز مزامنة جديد ☁️</button>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="text" id="linkCodeInput" class="input-control" style="width: 120px; padding: 6px; font-size:13px;" placeholder="اكتب رمز جهاز آخر">
+                            <button class="btn" style="background: #3498db; padding: 8px 12px; min-height:35px; font-size:13px;" onclick="linkDevice()">ربط 🔗</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="syncStatus" class="sync-status">تعمل حالياً محلياً على هذا الجهاز فقط</div>
+                <div id="errorLog" class="error-log"></div>
+            `;
+            panel.style.background = "#f8fafc";
+            panel.style.borderColor = "var(--border)";
+        }
+    }
+
+    // إنشاء صندوق سحابي جديد (تم إضافة المائل / للرابط لمنع الـ Redirect)
+    async function createCloudBin() {
+        showSyncStatus("جاري الاتصال السحابي وبناء الرمز...", "pending");
+        hideError();
+        try {
+            const response = await fetch('https://api.npoint.io/', { // مائل في نهاية الرابط /
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: { shoppingList: shoppingList, history: historyLog } })
+            });
+            const data = await response.json();
+            if (data && data.id) {
+                syncCode = data.id;
+                localStorage.setItem('syncCode', syncCode);
+                renderSyncUI();
+                showSyncStatus("تم الاتصال بنجاح! تم حفظ بياناتك الحالية على السحابة.", "success");
+            } else {
+                throw new Error("سيرفر npoint لم يقم بالرد بالمعرّف الصحيح.");
+            }
+        } catch (err) {
+            console.error("Error creating bin: ", err);
+            showSyncStatus("عذراً، فشل الاتصال بالسيرفر السحابي. جربي لاحقاً.", "error");
+            showError(`Error Details: ${err.message || err}`);
+        }
+    }
+
+    // رفع وتعديل السحاب
+    async function uploadToCloud() {
+        if (!syncCode) return;
+        showSyncStatus("جاري الحفظ والمزامنة سحابياً...", "pending");
+        hideError();
+        try {
+            const response = await fetch(`https://api.npoint.io/${syncCode}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: { shoppingList: shoppingList, history: historyLog } })
+            });
+            if (response.ok) {
+                showSyncStatus("تم المزامنة والحفظ بنجاح ✅", "success");
+            } else {
+                throw new Error(`HTTP status error: ${response.status}`);
+            }
+        } catch (err) {
+            console.error("Error uploading: ", err);
+            showSyncStatus("محفوظ محلياً فقط (أوفلاين بسبب انقطاع النت أو المتصفح) ⚠️", "error");
+            showError(`Upload Failed: ${err.message || err}`);
+        }
+    }
+
+    // تحميل وتحديث السحاب
+    async function downloadFromCloud(codeToLoad = syncCode) {
+        if (!codeToLoad) return;
+        showSyncStatus("جاري جلب وتحديث البيانات من السحاب...", "pending");
+        hideError();
+        try {
+            const response = await fetch(`https://api.npoint.io/${codeToLoad}`);
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            const data = await response.json();
+            if (data && data.contents) {
+                shoppingList = data.contents.shoppingList || [];
+                historyLog = data.contents.history || [];
+                syncCode = codeToLoad;
+                localStorage.setItem('syncCode', syncCode);
+                localStorage.setItem('shoppingList_v2', JSON.stringify(shoppingList));
+                localStorage.setItem('historyLog', JSON.stringify(historyLog));
+                renderList();
+                renderHistory();
+                renderSyncUI();
+                showSyncStatus("تم تحديث البيانات من السيرفر بنجاح! ✅", "success");
+            } else {
+                throw new Error("تنسيق البيانات السحابية غير صالح.");
+            }
+        } catch (err) {
+            console.error("Error downloading: ", err);
+            showSyncStatus("لم نتمكن من جلب البيانات. تأكدي من الرمز أو الاتصال بالإنترنت.", "error");
+            showError(`Download Failed: ${err.message || err}`);
+        }
+    }
+
+    function linkDevice() {
+        const code = document.getElementById('linkCodeInput').value.trim();
+        if (!code) {
+            alert("من فضلك اكتب رمز المزامنة المكون من حروف وأرقام!");
+            return;
+        }
+        downloadFromCloud(code);
+    }
+
+    function copySyncCode() {
+        navigator.clipboard.writeText(syncCode);
+        alert("📋 تم نسخ الرمز! افتحي نفس هذا الرابط على الموبايل الآخر، واكتبي الرمز في حقل 'الربط' لتتوحد الأجهزة فوراً.");
+    }
+
+    function disconnectSync() {
+        if (confirm("هل تريد فصل الجهاز عن المزامنة؟ (ستبقى بياناتك الحالية محفوظة على هذا الجهاز محلياً)")) {
+            syncCode = "";
+            localStorage.removeItem('syncCode');
+            renderSyncUI();
+            showSyncStatus("تم فصل المزامنة السحابية بنجاح.", "error");
+        }
+    }
+
+    function showSyncStatus(msg, type) {
+        const statusDiv = document.getElementById('syncStatus');
+        if (statusDiv) {
+            statusDiv.innerText = msg;
+            if (type === "success") statusDiv.style.color = "var(--success-dark)";
+            else if (type === "error") statusDiv.style.color = "var(--danger)";
+            else statusDiv.style.color = "#64748b";
+        }
+    }
+
+    function showError(text) {
+        const errorDiv = document.getElementById('errorLog');
+        if (errorDiv) {
+            errorDiv.innerText = text;
+            errorDiv.style.display = "block";
+        }
+    }
+
+    function hideError() {
+        const errorDiv = document.getElementById('errorLog');
+        if (errorDiv) {
+            errorDiv.style.display = "none";
+        }
+    }
+
+    window.onload = function() {
+        renderSyncUI();
+        if (syncCode) {
+            downloadFromCloud();
+        } else {
+            renderList();
+            renderHistory();
+        }
+    };
+</script>
+
+
+</body></html>
